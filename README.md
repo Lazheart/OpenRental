@@ -302,9 +302,9 @@ stateDiagram-v2
 
 ---
 
-## 6. Reglas de Negocio para Implementación en Base de Datos (Triggers y Constraints)
+## 6. Reglas de Negocio para Implementación en Base de Datos 
 
-Estas reglas se implementarán en la carpeta `sql/` mediante restricciones (`02_constrainst.sql`), triggers (`03_triggers.sql`) y vistas (`04_views.sql`):
+
 
 1. **Prevención de Solapamiento (*Anti Double-Booking*)**:
    - Un trigger debe verificar que un mismo `id_vehiculo` no pueda tener dos reservas `CONFIRMADA` ni un `ALQUILER` en curso dentro del mismo intervalo `[fecha_inicio, fecha_fin]`.
