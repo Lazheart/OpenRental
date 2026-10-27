@@ -35,5 +35,5 @@ jobs:
           file: ./api/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/api-wachi:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/api-wachi:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/api-rentcar:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/api-rentcar:${{ github.sha }}
