@@ -115,7 +115,7 @@ def run_generation(scale: str, base_output_dir: str, seed: int = 42) -> None:
     print("-" * 70)
 
     elapsed_total = time.time() - start_total_time
-    print(f"🎉 Escala [{scale.upper()}] completada:")
+    print(f" Escala [{scale.upper()}] completada:")
     print(f"   • Total de registros : {total_rows:,} filas")
     print(f"   • Peso total de CSVs : {format_bytes(total_bytes)}")
     print(f"   • Tiempo transcurrido: {elapsed_total:.2f} segundos")
