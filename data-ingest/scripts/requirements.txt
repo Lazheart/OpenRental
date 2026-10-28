@@ -1,0 +1,3 @@
+# OpenRental - Requerimientos de Ingesta y Generación de Datos
+tqdm>=4.66.0
+faker>=24.0.0
