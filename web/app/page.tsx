@@ -17,7 +17,6 @@ import { SqlItem } from "@/lib/sqlDefinitions";
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("flota");
   const [selectedSqlItem, setSelectedSqlItem] = useState<SqlItem | null>(null);
-  const [isFallbackActive, setIsFallbackActive] = useState<boolean>(false);
 
   const handleOpenSql = (item: SqlItem) => {
     setSelectedSqlItem(item);
@@ -27,70 +26,42 @@ export default function Home() {
     setSelectedSqlItem(null);
   };
 
-  const handleFallbackDetected = (fallback: boolean) => {
-    if (fallback) {
-      setIsFallbackActive(true);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-body selection:bg-[#722f37] selection:text-white">
-      {/* Navbar with tabs and connection status */}
+      {/* Navbar with tabs and API status */}
       <Navbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        isFallbackActive={isFallbackActive}
       />
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {activeTab === "flota" && (
-          <FleetTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <FleetTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "alquileres" && (
-          <RentalsTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <RentalsTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "finanzas" && (
-          <FinanceTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <FinanceTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "mantenimiento" && (
-          <MaintenanceTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <MaintenanceTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "clientes" && (
-          <ClientsTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <ClientsTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "alertas" && (
-          <AlertsTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <AlertsTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "consultas" && (
-          <QueriesTab
-            onOpenSql={handleOpenSql}
-            onFallbackDetected={handleFallbackDetected}
-          />
+          <QueriesTab onOpenSql={handleOpenSql} />
         )}
 
         {activeTab === "sql" && (

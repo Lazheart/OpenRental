@@ -19,13 +19,13 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface QueriesTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
 type QueryKey = "q1" | "q2" | "q3" | "q4" | "q5";
 
-export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
+export function QueriesTab({ onOpenSql }: QueriesTabProps) {
   const [activeQuery, setActiveQuery] = useState<QueryKey>("q1");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Query 1: Anti-solapamiento
   const [q1Category, setQ1Category] = useState<number | "ALL">(3);
@@ -57,6 +57,8 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
     let isMounted = true;
 
     async function fetchData() {
+      setErrorMsg(null);
+
       if (activeQuery === "q1") {
         setQ1Loading(true);
         const res = await getDisponibilidadAntiSolapamiento({
@@ -67,7 +69,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
         });
         if (isMounted) {
           setQ1Results(res.data);
-          if (res.isFallback) onFallbackDetected?.(true);
+          if (res.error) setErrorMsg(res.error);
           setQ1Loading(false);
         }
       } else if (activeQuery === "q2") {
@@ -75,7 +77,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
         const res = await getUtilizacionIngresosPorMes();
         if (isMounted) {
           setQ2Results(res.data);
-          if (res.isFallback) onFallbackDetected?.(true);
+          if (res.error) setErrorMsg(res.error);
           setQ2Loading(false);
         }
       } else if (activeQuery === "q3") {
@@ -83,7 +85,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
         const res = await getClientesAltaSiniestralidad();
         if (isMounted) {
           setQ3Results(res.data);
-          if (res.isFallback) onFallbackDetected?.(true);
+          if (res.error) setErrorMsg(res.error);
           setQ3Loading(false);
         }
       } else if (activeQuery === "q4") {
@@ -91,7 +93,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
         const res = await getRentabilidadPorUnidad();
         if (isMounted) {
           setQ4Results(res.data);
-          if (res.isFallback) onFallbackDetected?.(true);
+          if (res.error) setErrorMsg(res.error);
           setQ4Loading(false);
         }
       } else if (activeQuery === "q5") {
@@ -99,7 +101,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
         const res = await getAuditoriaContratosIncompletos();
         if (isMounted) {
           setQ5Results(res.data);
-          if (res.isFallback) onFallbackDetected?.(true);
+          if (res.error) setErrorMsg(res.error);
           setQ5Loading(false);
         }
       }
@@ -117,7 +119,6 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
     q1Start,
     q1End,
     refreshTrigger,
-    onFallbackDetected,
   ]);
 
   const querySqlMap: Record<QueryKey, string> = {
@@ -142,14 +143,14 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
               Consultas Complejas y Analíticas
             </span>
             <span className="text-xs text-zinc-500 font-mono">
-              sql/07_queries.sql & Cap. 3.5
+              sql/07_queries.sql y Cap. 3.5
             </span>
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Operaciones de Negocio y Consultas Específicas
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Ejecución de queries con técnicas intermedias de SQL: anti-uniones, agregaciones condicionales, funciones de ventana y subconsultas correlacionadas.
+            Ejecución directa en Supabase con técnicas intermedias de SQL: anti-uniones, agregaciones condicionales, funciones de ventana y subconsultas correlacionadas.
           </p>
         </div>
 
@@ -158,10 +159,18 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Consulta
+            VER SQL DE LA CONSULTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* Query Selector Tabs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
@@ -175,7 +184,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
           {
             key: "q2",
             num: "Consulta 2",
-            title: "Utilización & Ventas",
+            title: "Utilización y Ventas",
             desc: "Rendimiento mensual y ranking",
           },
           {
@@ -247,7 +256,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
                 onClick={() => setRefreshTrigger((prev) => prev + 1)}
                 className="px-4 py-1.5 border-2 border-black bg-black text-white text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-zinc-800 self-start md:self-auto"
               >
-                ⚡ Ejecutar Consulta
+                EJECUTAR CONSULTA
               </button>
             </div>
 
@@ -323,7 +332,13 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
           {q1Loading ? (
             <div className="p-8 text-center border-2 border-black bg-white">
               <p className="font-bold font-mono text-xs uppercase">
-                Verificando solapamientos temporales...
+                Verificando solapamientos temporales en base de datos...
+              </p>
+            </div>
+          ) : q1Results.length === 0 ? (
+            <div className="p-8 text-center border-2 border-black bg-white">
+              <p className="font-bold text-sm text-zinc-600">
+                No se encontraron unidades disponibles para los parámetros especificados.
               </p>
             </div>
           ) : (
@@ -388,14 +403,20 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
               onClick={() => setRefreshTrigger((prev) => prev + 1)}
               className="px-4 py-1.5 border-2 border-black bg-black text-white text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-zinc-800 self-start md:self-auto"
             >
-              ⚡ Re-ejecutar Consulta
+              RE-EJECUTAR CONSULTA
             </button>
           </div>
 
           {q2Loading ? (
             <div className="p-8 text-center border-2 border-black bg-white">
               <p className="font-bold font-mono text-xs uppercase">
-                Calculando ingresos agregados y ranking mensual...
+                Calculando ingresos agregados y ranking mensual en Supabase...
+              </p>
+            </div>
+          ) : q2Results.length === 0 ? (
+            <div className="p-8 text-center border-2 border-black bg-white">
+              <p className="font-bold text-sm text-zinc-600">
+                No se encontraron registros de alquileres/pagos en la base de datos para la agregación mensual.
               </p>
             </div>
           ) : (
@@ -462,21 +483,27 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
                 Consulta 3: Clientes con Siniestralidad Superior al Promedio
               </h3>
               <p className="text-xs text-zinc-600 font-body">
-                Usuario: <strong>Administrador / Supervisor</strong>. Atraviesa 6 relaciones relacionales y evalúa una cláusula <code>HAVING</code> con subconsulta correlacionada escalar.
+                Usuario: <strong>Administrador / Supervisor</strong>. Atraviesa 6 relaciones y evalúa una cláusula <code>HAVING</code> con subconsulta correlacionada escalar.
               </p>
             </div>
             <button
               onClick={() => setRefreshTrigger((prev) => prev + 1)}
               className="px-4 py-1.5 border-2 border-black bg-black text-white text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-zinc-800 self-start md:self-auto"
             >
-              ⚡ Re-ejecutar Consulta
+              RE-EJECUTAR CONSULTA
             </button>
           </div>
 
           {q3Loading ? (
             <div className="p-8 text-center border-2 border-black bg-white">
               <p className="font-bold font-mono text-xs uppercase">
-                Evaluando umbral general de siniestralidad por cliente...
+                Evaluando umbral general de siniestralidad por cliente en base de datos...
+              </p>
+            </div>
+          ) : q3Results.length === 0 ? (
+            <div className="p-8 text-center border-2 border-black bg-white">
+              <p className="font-bold text-sm text-zinc-600">
+                No se registraron clientes con siniestralidad superior al promedio en la base de datos.
               </p>
             </div>
           ) : (
@@ -550,14 +577,20 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
               onClick={() => setRefreshTrigger((prev) => prev + 1)}
               className="px-4 py-1.5 border-2 border-black bg-black text-white text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-zinc-800 self-start md:self-auto"
             >
-              ⚡ Re-ejecutar Consulta
+              RE-EJECUTAR CONSULTA
             </button>
           </div>
 
           {q4Loading ? (
             <div className="p-8 text-center border-2 border-black bg-white">
               <p className="font-bold font-mono text-xs uppercase">
-                Calculando rentabilidad neta por vehículo...
+                Calculando rentabilidad neta por vehículo en base de datos...
+              </p>
+            </div>
+          ) : q4Results.length === 0 ? (
+            <div className="p-8 text-center border-2 border-black bg-white">
+              <p className="font-bold text-sm text-zinc-600">
+                No se registraron datos de rentabilidad para las unidades en la base de datos.
               </p>
             </div>
           ) : (
@@ -625,20 +658,20 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
               onClick={() => setRefreshTrigger((prev) => prev + 1)}
               className="px-4 py-1.5 border-2 border-black bg-black text-white text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-zinc-800 self-start md:self-auto"
             >
-              ⚡ Re-ejecutar Auditoría
+              RE-EJECUTAR AUDITORIA
             </button>
           </div>
 
           {q5Loading ? (
             <div className="p-8 text-center border-2 border-black bg-white">
               <p className="font-bold font-mono text-xs uppercase">
-                Verificando inconsistencias de cierre de contratos...
+                Verificando inconsistencias de cierre de contratos en base de datos...
               </p>
             </div>
           ) : q5Results.length === 0 ? (
             <div className="p-8 text-center border-2 border-emerald-900 bg-emerald-50">
-              <p className="font-bold text-sm text-emerald-900">
-                ✓ No se detectaron inconsistencias en contratos finalizados.
+              <p className="font-bold text-sm text-emerald-900 font-mono">
+                [CONFORME] No se detectaron inconsistencias en contratos finalizados.
               </p>
             </div>
           ) : (
@@ -671,7 +704,7 @@ export function QueriesTab({ onOpenSql, onFallbackDetected }: QueriesTabProps) {
                           : "No registrada"}
                       </td>
                       <td className="text-xs text-red-900 font-bold bg-red-50">
-                        ⚠️ {r.motivo_inconsistencia}
+                        [INCONSISTENCIA] {r.motivo_inconsistencia}
                       </td>
                     </tr>
                   ))}

@@ -8,26 +8,27 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface ClientsTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
-export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
+export function ClientsTab({ onOpenSql }: ClientsTabProps) {
   const [clients, setClients] = useState<PerfilCliente[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setErrorMsg(null);
       const res = await getPerfilesClientes();
       setClients(res.data);
-      setIsFallback(res.isFallback);
-      onFallbackDetected?.(res.isFallback);
+      if (res.error) {
+        setErrorMsg(res.error);
+      }
       setLoading(false);
     }
     loadData();
-  }, [onFallbackDetected]);
+  }, []);
 
   const filtered = clients.filter((c) => {
     const term = searchTerm.toLowerCase();
@@ -67,17 +68,12 @@ export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
             <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 border border-black bg-zinc-100">
               Vista: vw_perfil_cliente
             </span>
-            {isFallback && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 text-amber-950 font-bold">
-                Datos Demostrativos
-              </span>
-            )}
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Perfil de Clientes e Indicadores de Fidelidad
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Consolidado de reservas, cumplimientos, cancelaciones, inasistencias (no-show) y facturación acumulada.
+            Consolidado directo de reservas, cumplimientos, cancelaciones, inasistencias (no-show) y facturación acumulada.
           </p>
         </div>
 
@@ -86,10 +82,18 @@ export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Vista
+            VER SQL DE LA VISTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -138,13 +142,13 @@ export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
       {loading ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm uppercase tracking-widest font-mono">
-            Consultando vw_perfil_cliente...
+            Consultando vw_perfil_cliente en Supabase...
           </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm text-zinc-600">
-            No se encontraron clientes con el criterio de búsqueda.
+            No se encontraron clientes registrados en la base de datos.
           </p>
         </div>
       ) : (
@@ -219,7 +223,7 @@ export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
                       <span>Fin: {c.alquileres_finalizados}</span>
                       {Number(c.alquileres_activos) > 0 && (
                         <span className="ml-1 text-[#722f37] font-bold">
-                          • Activo: {c.alquileres_activos}
+                          - Activo: {c.alquileres_activos}
                         </span>
                       )}
                     </div>
@@ -250,4 +254,3 @@ export function ClientsTab({ onOpenSql, onFallbackDetected }: ClientsTabProps) {
     </div>
   );
 }
-

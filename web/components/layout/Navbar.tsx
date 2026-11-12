@@ -15,23 +15,18 @@ export type TabId =
 interface NavbarProps {
   activeTab: TabId;
   onSelectTab: (tab: TabId) => void;
-  isFallbackActive?: boolean;
 }
 
-export function Navbar({
-  activeTab,
-  onSelectTab,
-  isFallbackActive = false,
-}: NavbarProps) {
-  const tabs: { id: TabId; label: string; icon: string; countBadge?: string }[] = [
-    { id: "flota", label: "Flota", icon: "🚗" },
-    { id: "alquileres", label: "Alquileres", icon: "📑" },
-    { id: "finanzas", label: "Finanzas", icon: "💰" },
-    { id: "mantenimiento", label: "Taller & Mant.", icon: "🔧" },
-    { id: "clientes", label: "Clientes", icon: "👥" },
-    { id: "alertas", label: "Alertas Mora", icon: "⚠️", countBadge: "!" },
-    { id: "consultas", label: "Queries Específicas", icon: "📊" },
-    { id: "sql", label: "Vistas & DDL", icon: "🗄️" },
+export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
+  const tabs: { id: TabId; label: string; countBadge?: string }[] = [
+    { id: "flota", label: "Flota" },
+    { id: "alquileres", label: "Alquileres" },
+    { id: "finanzas", label: "Finanzas" },
+    { id: "mantenimiento", label: "Mantenimiento" },
+    { id: "clientes", label: "Clientes" },
+    { id: "alertas", label: "Alertas Mora", countBadge: "!" },
+    { id: "consultas", label: "Queries Específicas" },
+    { id: "sql", label: "Vistas y DDL" },
   ];
 
   return (
@@ -40,25 +35,17 @@ export function Navbar({
       <div className="bg-black text-white px-4 py-1.5 flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-3">
           <span className="font-extrabold uppercase text-[#ff8093] tracking-widest">
-            ● SISTEMA OPERATIVO FLOTA
+            SISTEMA OPERATIVO DE FLOTA
           </span>
-          <span className="hidden sm:inline text-zinc-400">|</span>
+          <span className="hidden sm:inline text-zinc-500">|</span>
           <span className="hidden sm:inline text-zinc-300">
-            OpenRental v1.0 • UTEC Base de Datos
+            OpenRental v1.0 - UTEC Base de Datos
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {isFallbackActive ? (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-400 text-[11px] font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              Modo Demostración / Fallback
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400 text-[11px] font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              Supabase Vistas Online
-            </span>
-          )}
+          <span className="px-2 py-0.5 bg-zinc-800 text-zinc-200 border border-zinc-700 text-[11px] font-bold uppercase tracking-wider font-mono">
+            API: SUPABASE POSTGRESQL
+          </span>
         </div>
       </div>
 
@@ -70,7 +57,7 @@ export function Navbar({
               OPEN<span className="text-[#722f37]">RENTAL</span>
             </h1>
             <span className="text-xs uppercase font-extrabold tracking-widest px-1.5 py-0.5 border border-black bg-zinc-100">
-              PostgreSQL Views
+              Vistas Relacionales
             </span>
           </div>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
@@ -95,7 +82,6 @@ export function Navbar({
                     : "bg-white text-black border-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000] hover:shadow-[3px_3px_0px_0px_#000000]"
                 }`}
               >
-                <span>{tab.icon}</span>
                 <span>{tab.label}</span>
                 {tab.countBadge && (
                   <span className="ml-0.5 px-1 py-0.2 bg-red-600 text-white text-[10px] font-black border border-white">
@@ -110,4 +96,3 @@ export function Navbar({
     </header>
   );
 }
-

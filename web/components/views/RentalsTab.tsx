@@ -9,28 +9,29 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface RentalsTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
-export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
+export function RentalsTab({ onOpenSql }: RentalsTabProps) {
   const [rentals, setRentals] = useState<HistorialAlquiler[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedRental, setSelectedRental] = useState<HistorialAlquiler | null>(null);
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setErrorMsg(null);
       const res = await getHistorialAlquileres();
       setRentals(res.data);
-      setIsFallback(res.isFallback);
-      onFallbackDetected?.(res.isFallback);
+      if (res.error) {
+        setErrorMsg(res.error);
+      }
       setLoading(false);
     }
     loadData();
-  }, [onFallbackDetected]);
+  }, []);
 
   const filtered = rentals.filter((r) => {
     const matchesStatus =
@@ -63,17 +64,12 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
             <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 border border-black bg-zinc-100">
               Vista: vw_historial_alquiler
             </span>
-            {isFallback && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 text-amber-950 font-bold">
-                Datos Demostrativos
-              </span>
-            )}
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Historial y Ciclo de Vida de Alquileres
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Trazabilidad completa: contrato, reserva, vehículo, cliente, inspección física y entregas.
+            Consulta directa a Supabase: contrato, reserva, vehículo, cliente e inspección física.
           </p>
         </div>
 
@@ -82,17 +78,25 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Vista
+            VER SQL DE LA VISTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           title="Total Contratos"
           value={rentals.length}
-          subtitle="Registrados en la vista"
+          subtitle="Registros obtenidos de la vista"
         />
         <StatCard
           title="Alquileres Activos"
@@ -156,13 +160,13 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
       {loading ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm uppercase tracking-widest font-mono">
-            Consultando vw_historial_alquiler...
+            Consultando vw_historial_alquiler en Supabase...
           </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm text-zinc-600">
-            No se encontraron contratos con los filtros especificados.
+            No se encontraron contratos registrados en la base de datos para los filtros especificados.
           </p>
         </div>
       ) : (
@@ -235,10 +239,10 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
                   </td>
                   <td className="text-xs">
                     <div>
-                      Km: {r.km_salida ?? "-"} → {r.km_retorno ?? "Pendiente"}
+                      Km: {r.km_salida ?? "-"} -&gt; {r.km_retorno ?? "Pendiente"}
                     </div>
                     <div className="text-zinc-600 text-[11px]">
-                      Comb: {r.combustible_salida ?? "-"} →{" "}
+                      Comb: {r.combustible_salida ?? "-"} -&gt;{" "}
                       {r.combustible_retorno ?? "-"}
                     </div>
                     {Number(r.cargos_adicionales) > 0 && (
@@ -277,16 +281,16 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
               </div>
               <button
                 onClick={() => setSelectedRental(null)}
-                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white font-bold cursor-pointer"
+                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white font-bold cursor-pointer text-xs font-mono"
               >
-                ✕
+                [X]
               </button>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
               <div className="p-3 border border-black bg-zinc-50 space-y-1">
                 <span className="font-bold text-zinc-500 uppercase block">
-                  Cliente & Entrega
+                  Cliente y Entrega
                 </span>
                 <p className="font-bold text-sm">
                   {selectedRental.cliente_nombre_completo}
@@ -298,7 +302,7 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
 
               <div className="p-3 border border-black bg-zinc-50 space-y-1">
                 <span className="font-bold text-zinc-500 uppercase block">
-                  Vehículo & Retorno
+                  Vehículo y Retorno
                 </span>
                 <p className="font-bold text-sm">
                   {selectedRental.vehiculo_descripcion} ({selectedRental.placa})
@@ -361,4 +365,3 @@ export function RentalsTab({ onOpenSql, onFallbackDetected }: RentalsTabProps) {
     </div>
   );
 }
-

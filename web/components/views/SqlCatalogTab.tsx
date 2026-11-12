@@ -50,17 +50,17 @@ export function SqlCatalogTab({ onOpenSql }: SqlCatalogTabProps) {
           onClick={handleCopyAllViews}
           className="self-start md:self-auto px-4 py-2 border-2 border-black bg-[#722f37] hover:bg-[#8e3642] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[3px_3px_0px_0px_#000000] cursor-pointer"
         >
-          {copiedAll ? "✓ ¡Todas las Vistas Copiadas!" : "📋 Copiar Todas las Vistas (04_views.sql)"}
+          {copiedAll ? "[COPIADO] TODAS LAS VISTAS COPIADAS" : "COPIAR TODAS LAS VISTAS (04_VIEWS.SQL)"}
         </button>
       </div>
 
       {/* Deployment Guide Banner */}
       <div className="p-4 border-2 border-black bg-zinc-50 shadow-[3px_3px_0px_0px_#000000]">
         <h3 className="font-bold font-title text-base text-black mb-1">
-          💡 Guía de Despliegue en Supabase SQL Editor
+          GUIA DE DESPLIEGUE EN SUPABASE SQL EDITOR
         </h3>
         <p className="text-xs font-body text-zinc-700 leading-relaxed">
-          Para que Supabase exponga las vistas a la API PostgREST y la aplicación consulte datos en vivo, copia el script con el botón superior y pégalo directamente en el <strong>SQL Editor</strong> de tu proyecto Supabase (<code className="font-mono bg-zinc-200 px-1 py-0.5">https://supabase.com/dashboard/project/ntiwgqurbsenjhiimoem/sql</code>). Si aún no las has ejecutado, la UI utiliza automáticamente el adaptador de demostración resiliente.
+          Para que Supabase exponga las vistas a la API PostgREST y la aplicación las consulte en vivo, copia el script con el botón superior y pégalo directamente en el <strong>SQL Editor</strong> de tu proyecto Supabase (<code className="font-mono bg-zinc-200 px-1 py-0.5">https://supabase.com/dashboard/project/ntiwgqurbsenjhiimoem/sql</code>). Toda la data se consulta directamente a la base de datos sin ningún adaptador de simulación.
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export function SqlCatalogTab({ onOpenSql }: SqlCatalogTabProps) {
                 onClick={() => onOpenSql(item)}
                 className="px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors shadow-[2px_2px_0px_0px_#000000]"
               >
-                🔍 Inspeccionar SQL
+                INSPECCIONAR SQL
               </button>
             </div>
           </div>
@@ -166,4 +166,3 @@ export function SqlCatalogTab({ onOpenSql }: SqlCatalogTabProps) {
     </div>
   );
 }
-

@@ -9,33 +9,34 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface FleetTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
-export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
+export function FleetTab({ onOpenSql }: FleetTabProps) {
   const [vehicles, setVehicles] = useState<FichaVehiculo[]>([]);
   const [filterMode, setFilterMode] = useState<"all" | "disponibles">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setErrorMsg(null);
       const res =
         filterMode === "all"
           ? await getFichaVehiculos()
           : await getVehiculosDisponibles();
 
       setVehicles(res.data);
-      setIsFallback(res.isFallback);
-      onFallbackDetected?.(res.isFallback);
+      if (res.error) {
+        setErrorMsg(res.error);
+      }
       setLoading(false);
     }
     loadData();
-  }, [filterMode, onFallbackDetected]);
+  }, [filterMode]);
 
   // Derived categories
   const categories = Array.from(new Set(vehicles.map((v) => v.categoria_nombre)));
@@ -79,17 +80,12 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
             <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 border border-black bg-zinc-100">
               {filterMode === "all" ? "Vista: vw_ficha_vehiculo" : "Vista: vw_vehiculos_disponibles"}
             </span>
-            {isFallback && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 text-amber-950 font-bold">
-                Datos Demostrativos
-              </span>
-            )}
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Gestión y Disponibilidad de Flota
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Consulta de unidades vehiculares, categorías, tarifas efectivas y estados operativos.
+            Consulta directa a Supabase de unidades vehiculares, categorías, tarifas y estados.
           </p>
         </div>
 
@@ -98,24 +94,32 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Vista
+            VER SQL DE LA VISTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           title="Total Unidades"
           value={vehicles.length}
-          subtitle="Unidades registradas en vista"
+          subtitle="Registros obtenidos de la vista"
         />
         <StatCard
           title="Disponibles"
           value={availableCount}
           badge="Listos"
           accent
-          subtitle="Listos para alquilar hoy"
+          subtitle="Listos para alquilar"
         />
         <StatCard
           title="Tarifa Promedio"
@@ -125,13 +129,12 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
         <StatCard
           title="Categorías"
           value={categories.length}
-          subtitle="Segmentos de flota"
+          subtitle="Segmentos en vista"
         />
       </div>
 
       {/* Filter Toolbar */}
       <div className="p-4 border-2 border-black bg-zinc-50 shadow-[3px_3px_0px_0px_#000000] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        {/* View Switcher: All vs Available */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
             Fuente:
@@ -160,7 +163,6 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
           </div>
         </div>
 
-        {/* Search & Category Filter */}
         <div className="flex flex-wrap items-center gap-3">
           <input
             type="text"
@@ -216,7 +218,7 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm text-zinc-600">
-            No se encontraron vehículos que coincidan con los filtros aplicados.
+            No se encontraron registros de vehículos en la base de datos para los filtros aplicados.
           </p>
         </div>
       ) : viewMode === "table" ? (
@@ -288,7 +290,7 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
                     {v.marca} {v.modelo}
                   </h3>
                   <p className="text-xs text-zinc-500">
-                    Año {v.anio} • {v.color} • {v.capacidad_pasajeros} pasajeros
+                    Año {v.anio} - {v.color} - {v.capacidad_pasajeros} pasajeros
                   </p>
                 </div>
 
@@ -327,4 +329,3 @@ export function FleetTab({ onOpenSql, onFallbackDetected }: FleetTabProps) {
     </div>
   );
 }
-

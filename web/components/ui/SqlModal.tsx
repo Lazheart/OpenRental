@@ -39,10 +39,10 @@ export function SqlModal({ item, onClose }: SqlModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white font-bold transition-colors cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white font-bold transition-colors cursor-pointer text-xs font-mono"
             aria-label="Cerrar modal"
           >
-            ✕
+            [X]
           </button>
         </div>
 
@@ -82,7 +82,7 @@ export function SqlModal({ item, onClose }: SqlModalProps) {
                 onClick={handleCopy}
                 className="text-xs font-bold uppercase px-3 py-1 border border-black bg-white hover:bg-zinc-100 transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                {copied ? "✓ ¡Copiado!" : "📋 Copiar SQL"}
+                {copied ? "[ COPIADO ]" : "COPIAR SQL"}
               </button>
             </div>
             <pre className="p-4 bg-zinc-950 text-emerald-400 font-mono text-xs overflow-x-auto border-2 border-black rounded-none selection:bg-zinc-700 selection:text-white leading-relaxed">
@@ -104,4 +104,3 @@ export function SqlModal({ item, onClose }: SqlModalProps) {
     </div>
   );
 }
-

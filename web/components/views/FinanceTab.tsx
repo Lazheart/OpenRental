@@ -9,26 +9,27 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface FinanceTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
-export function FinanceTab({ onOpenSql, onFallbackDetected }: FinanceTabProps) {
+export function FinanceTab({ onOpenSql }: FinanceTabProps) {
   const [finances, setFinances] = useState<ResumenFinancieroAlquiler[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setErrorMsg(null);
       const res = await getResumenFinanciero();
       setFinances(res.data);
-      setIsFallback(res.isFallback);
-      onFallbackDetected?.(res.isFallback);
+      if (res.error) {
+        setErrorMsg(res.error);
+      }
       setLoading(false);
     }
     loadData();
-  }, [onFallbackDetected]);
+  }, []);
 
   const filtered = finances.filter((f) =>
     f.nro_contrato.toLowerCase().includes(searchTerm.toLowerCase())
@@ -67,17 +68,12 @@ export function FinanceTab({ onOpenSql, onFallbackDetected }: FinanceTabProps) {
             <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 border border-black bg-zinc-100">
               Vista: vw_resumen_financiero_alquiler
             </span>
-            {isFallback && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 text-amber-950 font-bold">
-                Datos Demostrativos
-              </span>
-            )}
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Resumen Financiero por Contrato
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Liquidación de cobros, anticipos, depósito en garantía, devoluciones y penalidades.
+            Liquidación directa de cobros, anticipos, depósito en garantía, devoluciones y penalidades.
           </p>
         </div>
 
@@ -86,10 +82,18 @@ export function FinanceTab({ onOpenSql, onFallbackDetected }: FinanceTabProps) {
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Vista
+            VER SQL DE LA VISTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -147,13 +151,13 @@ export function FinanceTab({ onOpenSql, onFallbackDetected }: FinanceTabProps) {
       {loading ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm uppercase tracking-widest font-mono">
-            Consultando vw_resumen_financiero_alquiler...
+            Consultando vw_resumen_financiero_alquiler en Supabase...
           </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm text-zinc-600">
-            No se encontraron registros financieros.
+            No se encontraron registros financieros en la base de datos.
           </p>
         </div>
       ) : (
@@ -226,4 +230,3 @@ export function FinanceTab({ onOpenSql, onFallbackDetected }: FinanceTabProps) {
     </div>
   );
 }
-

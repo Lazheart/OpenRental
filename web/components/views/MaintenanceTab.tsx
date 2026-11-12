@@ -9,29 +9,27 @@ import { SQL_DEFINITIONS, SqlItem } from "@/lib/sqlDefinitions";
 
 interface MaintenanceTabProps {
   onOpenSql: (item: SqlItem) => void;
-  onFallbackDetected?: (fallback: boolean) => void;
 }
 
-export function MaintenanceTab({
-  onOpenSql,
-  onFallbackDetected,
-}: MaintenanceTabProps) {
+export function MaintenanceTab({ onOpenSql }: MaintenanceTabProps) {
   const [maintenance, setMaintenance] = useState<HistorialMantenimiento[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setErrorMsg(null);
       const res = await getHistorialMantenimiento();
       setMaintenance(res.data);
-      setIsFallback(res.isFallback);
-      onFallbackDetected?.(res.isFallback);
+      if (res.error) {
+        setErrorMsg(res.error);
+      }
       setLoading(false);
     }
     loadData();
-  }, [onFallbackDetected]);
+  }, []);
 
   const filtered = maintenance.filter((m) =>
     typeFilter === "ALL" ? true : m.tipo_mantenimiento === typeFilter
@@ -59,17 +57,12 @@ export function MaintenanceTab({
             <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 border border-black bg-zinc-100">
               Vista: vw_historial_mantenimiento
             </span>
-            {isFallback && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 text-amber-950 font-bold">
-                Datos Demostrativos
-              </span>
-            )}
           </div>
           <h2 className="text-2xl font-black font-title tracking-tight mt-1">
             Historial de Mantenimiento y Taller
           </h2>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Trazabilidad técnica: servicios preventivos, correctivos, mecánicos responsables y costos.
+            Trazabilidad técnica directa: servicios preventivos, correctivos, mecánicos responsables y costos.
           </p>
         </div>
 
@@ -78,10 +71,18 @@ export function MaintenanceTab({
             onClick={() => onOpenSql(currentSqlItem)}
             className="self-start md:self-auto px-3 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
-            🔍 Ver SQL de la Vista
+            VER SQL DE LA VISTA
           </button>
         )}
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 border-2 border-red-900 bg-red-50 text-red-950 font-mono text-xs">
+          <span className="font-bold uppercase block mb-1">[ERROR DE API SUPABASE]</span>
+          {errorMsg}
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -140,13 +141,13 @@ export function MaintenanceTab({
       {loading ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm uppercase tracking-widest font-mono">
-            Consultando vw_historial_mantenimiento...
+            Consultando vw_historial_mantenimiento en Supabase...
           </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center border-2 border-black bg-white">
           <p className="font-bold text-sm text-zinc-600">
-            No se encontraron registros de mantenimiento.
+            No se encontraron registros de mantenimiento en la base de datos.
           </p>
         </div>
       ) : (
@@ -177,7 +178,7 @@ export function MaintenanceTab({
                     </span>
                     <span className="font-bold">{m.vehiculo_descripcion}</span>
                     <span className="block text-[11px] text-zinc-500">
-                      {m.categoria} • Sucursal: {m.sucursal_actual}
+                      {m.categoria} - Sucursal: {m.sucursal_actual}
                     </span>
                   </td>
                   <td>
@@ -223,4 +224,3 @@ export function MaintenanceTab({
     </div>
   );
 }
-
