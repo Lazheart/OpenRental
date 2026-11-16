@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 export type TabId =
   | "flota"
@@ -10,15 +11,20 @@ export type TabId =
   | "clientes"
   | "alertas"
   | "consultas"
-  | "sql";
+  | "sql"
+  | "disponibilidad"
+  | "mis-reservas"
+  | "reservas";
 
 interface NavbarProps {
   activeTab: TabId;
   onSelectTab: (tab: TabId) => void;
+  userRole?: string;
 }
 
-export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
-  const tabs: { id: TabId; label: string; countBadge?: string }[] = [
+export function Navbar({ activeTab, onSelectTab, userRole }: NavbarProps) {
+  // All agent-facing tabs (operational)
+  const agentTabs: { id: TabId; label: string; countBadge?: string }[] = [
     { id: "flota", label: "Flota" },
     { id: "alquileres", label: "Alquileres" },
     { id: "finanzas", label: "Finanzas" },
@@ -27,7 +33,28 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
     { id: "alertas", label: "Alertas Mora", countBadge: "!" },
     { id: "consultas", label: "Queries Específicas" },
     { id: "sql", label: "Vistas y DDL" },
+    { id: "reservas", label: "Reservas" },
   ];
+
+  // Determine visible tabs based on role
+  let visibleTabs: { id: TabId; label: string; countBadge?: string }[];
+
+  if (!userRole) {
+    // Not authenticated: only Disponibilidad
+    visibleTabs = [{ id: "disponibilidad", label: "Disponibilidad" }];
+  } else if (userRole === "CLIENTE") {
+    // Client: Disponibilidad + Mis Reservas
+    visibleTabs = [
+      { id: "disponibilidad", label: "Disponibilidad" },
+      { id: "mis-reservas", label: "Mis Reservas" },
+    ];
+  } else {
+    // Agent (any non-CLIENTE authenticated role): all agent tabs + Disponibilidad first
+    visibleTabs = [
+      { id: "disponibilidad", label: "Disponibilidad" },
+      ...agentTabs,
+    ];
+  }
 
   return (
     <header className="border-b-3 border-black bg-white sticky top-0 z-40">
@@ -43,9 +70,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 bg-zinc-800 text-zinc-200 border border-zinc-700 text-[11px] font-bold uppercase tracking-wider font-mono">
-            API: SUPABASE POSTGRESQL
-          </span>
+          <UserMenu />
         </div>
       </div>
 
@@ -70,7 +95,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
           className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1"
           aria-label="Navegación principal"
         >
-          {tabs.map((tab) => {
+          {visibleTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
