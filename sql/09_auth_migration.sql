@@ -397,18 +397,24 @@ CREATE POLICY "mantenimiento_delete_staff"
 
 
 -- =========================================================
--- SECCIÓN 11: GRANTS DE ACCESO A TABLAS OPERATIVAS
--- Permite que las políticas RLS se evalúen correctamente
+-- SECCIÓN 11: GRANTS DE ACCESO A TABLAS OPERATIVAS Y VISTAS
+-- Permite que las políticas RLS y consultas se evalúen sin error 42501 (403 Forbidden)
 -- =========================================================
 
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 
--- Tablas de consulta pública
+-- Tablas de lectura pública
 GRANT SELECT ON public.vehiculo  TO anon, authenticated;
 GRANT SELECT ON public.categoria TO anon, authenticated;
 GRANT SELECT ON public.sucursal  TO anon, authenticated;
 
--- Tablas operativas: acceso completo a authenticated (controlado por RLS)
+-- Tablas de entidad (necesarias para JOINs en vistas y reservas)
+GRANT SELECT ON public.persona             TO authenticated;
+GRANT SELECT ON public.cliente             TO authenticated;
+GRANT SELECT ON public.empleado            TO authenticated;
+GRANT SELECT ON public.conductor_adicional TO authenticated;
+
+-- Tablas operativas: acceso a authenticated (controlado por RLS)
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.reserva       TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.alquiler      TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.pago          TO authenticated;
@@ -417,6 +423,18 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.mantenimiento TO authenticated;
 GRANT INSERT, UPDATE, DELETE         ON public.vehiculo      TO authenticated;
 GRANT INSERT, UPDATE, DELETE         ON public.categoria     TO authenticated;
 GRANT INSERT, UPDATE, DELETE         ON public.sucursal      TO authenticated;
+
+-- Vistas analíticas y operativas del sistema (para agentes/staff autenticados)
+GRANT SELECT ON public.vw_ficha_vehiculo                TO anon, authenticated;
+GRANT SELECT ON public.vw_vehiculos_disponibles         TO anon, authenticated;
+GRANT SELECT ON public.vw_historial_alquiler            TO authenticated;
+GRANT SELECT ON public.vw_resumen_financiero_alquiler   TO authenticated;
+GRANT SELECT ON public.vw_historial_mantenimiento       TO authenticated;
+GRANT SELECT ON public.vw_perfil_cliente                TO authenticated;
+GRANT SELECT ON public.vw_alquileres_pendientes         TO authenticated;
+
+-- Permisos sobre secuencias (para INSERT con ID generado)
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
 -- Acceso a funciones helper para todos los autenticados
 GRANT EXECUTE ON FUNCTION public.get_my_persona_id() TO authenticated;

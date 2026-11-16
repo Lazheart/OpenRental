@@ -66,7 +66,7 @@ export function Navbar({ activeTab, onSelectTab, userRole }: NavbarProps) {
           </span>
           <span className="hidden sm:inline text-zinc-500">|</span>
           <span className="hidden sm:inline text-zinc-300">
-            OpenRental v1.0 - UTEC Base de Datos
+            OpenRental v1.0
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -81,12 +81,9 @@ export function Navbar({ activeTab, onSelectTab, userRole }: NavbarProps) {
             <h1 className="text-2xl sm:text-3xl font-black font-title tracking-tight text-black">
               OPEN<span className="text-[#722f37]">RENTAL</span>
             </h1>
-            <span className="text-xs uppercase font-extrabold tracking-widest px-1.5 py-0.5 border border-black bg-zinc-100">
-              Vistas Relacionales
-            </span>
           </div>
           <p className="text-xs text-zinc-600 font-body mt-0.5">
-            Plataforma brutalista y minimalista para gestión de flota y analítica relacional
+            Plataforma para gestión de flota y analítica
           </p>
         </div>
 
