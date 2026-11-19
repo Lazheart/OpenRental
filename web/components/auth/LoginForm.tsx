@@ -46,7 +46,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       )}
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-black uppercase tracking-widest font-body">
+        <label className="text-xs font-black uppercase tracking-widest text-black font-body">
           Correo electrónico
         </label>
         <input
@@ -56,12 +56,12 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           required
           disabled={loading}
           placeholder="tu@correo.com"
-          className="border-2 border-black px-3 py-2 text-sm font-body bg-white focus:outline-none focus:border-[#722f37] shadow-[2px_2px_0px_0px_#000] disabled:opacity-60"
+          className="h-11 border-2 border-black bg-white px-3 py-2 text-sm text-black placeholder:text-zinc-500 font-body focus:outline-none focus:border-[#722f37] shadow-[2px_2px_0px_0px_#000] disabled:opacity-60"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-black uppercase tracking-widest font-body">
+        <label className="text-xs font-black uppercase tracking-widest text-black font-body">
           Contraseña
         </label>
         <input
@@ -71,7 +71,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           required
           disabled={loading}
           placeholder="••••••••"
-          className="border-2 border-black px-3 py-2 text-sm font-body bg-white focus:outline-none focus:border-[#722f37] shadow-[2px_2px_0px_0px_#000] disabled:opacity-60"
+          className="h-11 border-2 border-black bg-white px-3 py-2 text-sm text-black placeholder:text-zinc-500 font-body focus:outline-none focus:border-[#722f37] shadow-[2px_2px_0px_0px_#000] disabled:opacity-60"
         />
       </div>
 
@@ -84,27 +84,27 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       </button>
 
       {/* Demo credentials */}
-      <div className="flex flex-col gap-1.5 pt-1 border-t-2 border-black">
-        <span className="text-[10px] uppercase tracking-widest font-black text-zinc-500 font-body">
+      <div className="flex flex-col gap-2 border-2 border-black border-l-4 border-l-[#722f37] bg-zinc-100 p-3 shadow-[3px_3px_0px_0px_#000]">
+        <span className="text-xs uppercase tracking-widest font-black text-black font-body">
           Acceso rápido demo
         </span>
-        <div className="flex gap-2 flex-wrap">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => fillDemo("demo@openrental.pe", "Demo1234!")}
-            className="text-[11px] font-bold border border-zinc-400 px-2 py-1 hover:border-black hover:bg-zinc-100 transition-colors font-body cursor-pointer"
+            className="min-h-10 border-2 border-black bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-black hover:bg-[#722f37] hover:text-white transition-colors font-body cursor-pointer"
           >
             Demo cliente
           </button>
           <button
             type="button"
             onClick={() => fillDemo("agente@openrental.pe", "Agente1234!")}
-            className="text-[11px] font-bold border border-zinc-400 px-2 py-1 hover:border-black hover:bg-zinc-100 transition-colors font-body cursor-pointer"
+            className="min-h-10 border-2 border-black bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-black hover:bg-[#722f37] hover:text-white transition-colors font-body cursor-pointer"
           >
             Demo agente
           </button>
         </div>
-        <p className="text-[10px] text-zinc-400 font-body">
+        <p className="text-xs leading-relaxed text-zinc-700 font-body">
           demo@openrental.pe / Demo1234! &nbsp;|&nbsp; agente@openrental.pe / Agente1234!
         </p>
       </div>

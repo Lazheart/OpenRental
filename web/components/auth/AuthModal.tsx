@@ -65,7 +65,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         </div>
 
         {/* Form Area */}
-        <div className="px-6 py-5">
+        <div className="bg-zinc-100 px-6 py-5">
           {mode === "login" ? (
             <LoginForm
               onSuccess={handleSuccess}
